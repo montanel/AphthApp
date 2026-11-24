@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AphthApp — How it works</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#000000}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.chip{transition:background-color 150ms cubic-bezier(.2,0,0,1),color 150ms cubic-bezier(.2,0,0,1),transform 100ms cubic-bezier(.2,0,0,1)}
+.chip:active{transform:scale(.96)}
+.aph{transition:background-color 200ms cubic-bezier(.2,0,0,1),transform 100ms cubic-bezier(.2,0,0,1)}
+.aph:active{transform:scale(.98)}
+.tab{transition:background-color 200ms cubic-bezier(.2,0,0,1),color 200ms cubic-bezier(.2,0,0,1)}
+.day{transition:transform 100ms cubic-bezier(.2,0,0,1)}
+.day:active{transform:scale(.92)}
+.tabi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;min-height:52px;border-radius:26px;text-decoration:none;font-size:11px;font-weight:600;transition:background-color 200ms cubic-bezier(.2,0,0,1),color 200ms cubic-bezier(.2,0,0,1)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 16px;border-bottom:0.5px solid #2C2C2E;color:#F2F2F7;font-size:16px;font-weight:500;text-decoration:none;background:transparent;border-top:0;border-left:0;border-right:0;width:100%;box-sizing:border-box;text-align:left}
+.row:last-child{border-bottom:0}
+.striprow{transition:background-color 120ms cubic-bezier(.2,0,0,1)}
+.striprow:active{background:#2C2C2E}
+</style>
+</helmet>
+<div style="position: relative; width: 412px; height: 1000px; box-sizing: border-box; background: #000000; color: #F2F2F7; font-family: Inter, sans-serif; overflow: hidden; display: flex; flex-direction: column; gap: 12px; padding: 44px 14px 100px">
+<header style="display: flex; align-items: center; gap: 10px; min-height: 36px"><a class="chip" href="Insights.dc.html" aria-label="Back to Insights" style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; background: #1C1C1E; color: #F2F2F7"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a><h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; flex-grow: 1">How it works</h1></header>
+<section style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: #1C1C1E; gap: 16px"><div style="display: flex; gap: 14px; align-items: flex-start"><span style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 15px; background: #2F3846; font-size: 14px; font-weight: 700">1</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">Log each evening</span><span style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F; font-size: 14px">Boring days count just as much.</span></span></div><div style="display: flex; gap: 14px; align-items: flex-start"><span style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 15px; background: #2F3846; font-size: 14px; font-weight: 700">2</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">Spot suspects</span><span style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F; font-size: 14px">The days before each episode are compared with other days.</span></span></div><div style="display: flex; gap: 14px; align-items: flex-start"><span style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 15px; background: #2F3846; font-size: 14px; font-weight: 700">3</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">Later: test on purpose</span><span style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F; font-size: 14px">With enough data, the app suggests changing one thing for a few weeks.</span></span></div><div style="display: flex; gap: 14px; align-items: flex-start"><span style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 15px; background: #2F3846; font-size: 14px; font-weight: 700">4</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">Get a verdict</span><span style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F; font-size: 14px">Likely trigger, probably fine, or still unclear.</span></span></div></section>
+<section style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: #1C1C1E; "><h2 style="margin: 0; font-size: 18px; font-weight: 700">When to say yes</h2><p style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F">Only on days an aphtha hurts. The app mainly cares about the first day of each episode, so painless healing days are fine as a no.</p></section>
+<section style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: #1C1C1E; "><h2 style="margin: 0; font-size: 18px; font-weight: 700">Why sore days are skipped</h2><p style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F">When it hurts you avoid spicy or crunchy food, which would make those foods look protective. So only clear days are compared.</p></section>
+<section style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: #1C1C1E; "><h2 style="margin: 0; font-size: 18px; font-weight: 700">Honest limits</h2><p style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F">At about one episode a month, a big trigger can show up within a year. Small effects may never become clear, and they aren’t worth avoiding anyway.</p></section>
+<p style="margin: 0; padding: 0 4px; font-size: 13px; line-height: 1.5; color: #636366">Not a diagnosis. Show a doctor or dentist ulcers that are very large, last over three weeks, or come with fever.</p>
+<nav aria-label="Main" style="position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: 32px; background: #1C1C1E; box-shadow: 0 8px 28px rgba(0,0,0,0.6)"><a class="tabi" href="Main.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="5"></rect><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg>Today</a><a class="tabi" href="Calendar.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="4"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>History</a><a class="tabi" href="Insights.dc.html" aria-current="page" style="background: #2F3846; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-5"></path></svg>Insights</a><a class="tabi" href="Settings.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Settings</a></nav></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 412, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

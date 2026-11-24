@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AphthApp — Tea</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#000000}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.chip{transition:background-color 150ms cubic-bezier(.2,0,0,1),color 150ms cubic-bezier(.2,0,0,1),transform 100ms cubic-bezier(.2,0,0,1)}
+.chip:active{transform:scale(.96)}
+.aph{transition:background-color 200ms cubic-bezier(.2,0,0,1),transform 100ms cubic-bezier(.2,0,0,1)}
+.aph:active{transform:scale(.98)}
+.tab{transition:background-color 200ms cubic-bezier(.2,0,0,1),color 200ms cubic-bezier(.2,0,0,1)}
+.day{transition:transform 100ms cubic-bezier(.2,0,0,1)}
+.day:active{transform:scale(.92)}
+.tabi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;min-height:52px;border-radius:26px;text-decoration:none;font-size:11px;font-weight:600;transition:background-color 200ms cubic-bezier(.2,0,0,1),color 200ms cubic-bezier(.2,0,0,1)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 16px;border-bottom:0.5px solid #2C2C2E;color:#F2F2F7;font-size:16px;font-weight:500;text-decoration:none;background:transparent;border-top:0;border-left:0;border-right:0;width:100%;box-sizing:border-box;text-align:left}
+.row:last-child{border-bottom:0}
+.striprow{transition:background-color 120ms cubic-bezier(.2,0,0,1)}
+.striprow:active{background:#2C2C2E}
+</style>
+</helmet>
+<div style="position: relative; width: 412px; height: 891px; box-sizing: border-box; background: #000000; color: #F2F2F7; font-family: Inter, sans-serif; overflow: hidden; display: flex; flex-direction: column; gap: 12px; padding: 44px 14px 100px">
+<header style="display: flex; align-items: center; gap: 10px; min-height: 36px"><a class="chip" href="Insights.dc.html" aria-label="Back to Insights" style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; background: #1C1C1E; color: #F2F2F7"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a><h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; flex-grow: 1">Tea</h1></header>
+<section style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: #1C1C1E; "><span style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 14px; background: #2F3846; font-size: 13px; font-weight: 600">Can’t tell from logs</span>
+<h2 style="margin: 4px 0 0; font-size: 26px; font-weight: 800; letter-spacing: -0.03em">Can’t tell yet</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F">You had tea on 236 of 243 days, so there’s nothing to compare against.</p></section>
+<section style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: #1C1C1E; "><div role="img" aria-label="243 logged days, almost all with tea; episode starts are spread among them" style="display: grid; grid-template-columns: repeat(27, minmax(0, 1fr)); gap: 3px">
+<sc-for list="{{ days }}" as="d" hint-placeholder-count="243"><div style="{{ d }}"></div></sc-for></div>
+<div style="display: flex; gap: 16px; margin-top: 4px; font-size: 12px; color: #98989F">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #2F3846"></span>Tea</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px #3A3A3C"></span>No tea</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #FF453A"></span>Episode began</span></div></section>
+<section style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; background: #1C1C1E; "><h2 style="margin: 0; font-size: 18px; font-weight: 700">What would settle it</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #98989F">A planned break from tea for a few weeks at a time. That comes later, once there are a few months of data.</p></section>
+<nav aria-label="Main" style="position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: 32px; background: #1C1C1E; box-shadow: 0 8px 28px rgba(0,0,0,0.6)"><a class="tabi" href="Main.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="5"></rect><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg>Today</a><a class="tabi" href="Calendar.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="4"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>History</a><a class="tabi" href="Insights.dc.html" aria-current="page" style="background: #2F3846; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-5"></path></svg>Insights</a><a class="tabi" href="Settings.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Settings</a></nav></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 412, "height": 891}}'>
+
+class Component extends DCLogic {
+  renderVals() {
+    const noTea = [17, 45, 46, 102, 140, 188, 221];
+    const starts = [12, 41, 70, 99, 131, 163, 196, 226, 239];
+    const days = [];
+    for (let i = 0; i < 243; i++) {
+      let c = 'background: #2F3846';
+      if (noTea.indexOf(i) >= 0) c = 'background: #000000; box-shadow: inset 0 0 0 1px #3A3A3C';
+      if (starts.indexOf(i) >= 0) c = 'background: #FF453A';
+      days.push('aspect-ratio: 1; border-radius: 3px; ' + c);
+    }
+    return { days };
+  }
+}
+
+</script>
+</body>
+</html>

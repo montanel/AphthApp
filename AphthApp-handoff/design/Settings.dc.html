@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AphthApp — Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#000000}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.chip{transition:background-color 150ms cubic-bezier(.2,0,0,1),color 150ms cubic-bezier(.2,0,0,1),transform 100ms cubic-bezier(.2,0,0,1)}
+.chip:active{transform:scale(.96)}
+.aph{transition:background-color 200ms cubic-bezier(.2,0,0,1),transform 100ms cubic-bezier(.2,0,0,1)}
+.aph:active{transform:scale(.98)}
+.tab{transition:background-color 200ms cubic-bezier(.2,0,0,1),color 200ms cubic-bezier(.2,0,0,1)}
+.day{transition:transform 100ms cubic-bezier(.2,0,0,1)}
+.day:active{transform:scale(.92)}
+.tabi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;min-height:52px;border-radius:26px;text-decoration:none;font-size:11px;font-weight:600;transition:background-color 200ms cubic-bezier(.2,0,0,1),color 200ms cubic-bezier(.2,0,0,1)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 16px;border-bottom:0.5px solid #2C2C2E;color:#F2F2F7;font-size:16px;font-weight:500;text-decoration:none;background:transparent;border-top:0;border-left:0;border-right:0;width:100%;box-sizing:border-box;text-align:left}
+.row:last-child{border-bottom:0}
+.striprow{transition:background-color 120ms cubic-bezier(.2,0,0,1)}
+.striprow:active{background:#2C2C2E}
+</style>
+</helmet>
+
+<div style="position: relative; width: 412px; height: 1100px; box-sizing: border-box; background: #000000; color: #F2F2F7; font-family: Inter, sans-serif; overflow: hidden; display: flex; flex-direction: column; gap: 18px; padding: 44px 14px 100px">
+<header style="display: flex; align-items: baseline; padding: 0 4px; min-height: 36px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em">Settings</h1>
+</header>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding: 0 4px; font-size: 12px; font-weight: 600; color: #98989F">Reminders</h2>
+<div style="display: flex; flex-direction: column; border-radius: 20px; background: #1C1C1E; overflow: hidden">
+<button type="button" class="row"><span>Evening reminder</span><span style="font-size: 16px; font-weight: 700">21:30</span></button>
+<div class="row"><span>Nudge next morning if I skip</span><button type="button" class="chip" aria-pressed="{{ nudge }}" onClick="{{ toggleNudge }}" style="{{ nudgeStyle }}">{{ nudgeLabel }}</button></div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px">
+<h2 style="margin: 0; font-size: 12px; font-weight: 600; color: #98989F">What to track</h2>
+<span style="font-size: 12px; color: #636366">Tap to show or hide on Today</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 20px; background: #1C1C1E">
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h3 style="margin: 0; padding: 0 2px; font-size: 11px; font-weight: 600; color: #636366">{{ g.name }}</h3>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{ g.items }}" as="i" hint-placeholder-count="4"><button type="button" class="chip" onClick="{{ i.tap }}" aria-pressed="{{ i.v }}" style="{{ i.style }}">{{ i.n }}</button></sc-for>
+</div>
+</div>
+</sc-for>
+<button type="button" class="chip" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 0; border-radius: 18px; background: transparent; color: #98989F; font-size: 14px; font-weight: 600; outline: 1.5px dashed #3A3A3C; outline-offset: -1.5px">+ Add your own</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding: 0 4px; font-size: 12px; font-weight: 600; color: #98989F">Data</h2>
+<div style="display: flex; flex-direction: column; border-radius: 20px; background: #1C1C1E; overflow: hidden">
+<button type="button" class="row"><span>Export my data</span><span style="font-size: 14px; color: #98989F">CSV</span></button>
+<button type="button" class="row" style="color: #FF453A">Delete all data</button>
+</div>
+</section>
+<nav aria-label="Main" style="position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: 32px; background: #1C1C1E; box-shadow: 0 8px 28px rgba(0,0,0,0.6)"><a class="tabi" href="Main.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="5"></rect><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg>Today</a><a class="tabi" href="Calendar.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="4"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>History</a><a class="tabi" href="Settings.dc.html" aria-current="page" style="background: #2F3846; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Settings</a></nav>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 412, "height": 1100}}'>
+
+const TRACK = [
+  ['Drinks', [['Tea', true], ['Coffee', true], ['Alcohol', true]]],
+  ['Food', [['Banana', true], ['Nuts', true], ['Chocolate', true], ['Raw apple/carrot', true], ['Spicy', true], ['Citrus/tomato', true], ['Crunchy food', false], ['Gum/mints', false]]],
+  ['Mouth care', [['Brushed 2×', true], ['Water floss', true], ['Floss', true], ['SLS toothpaste', true], ['Mouthwash', false]]],
+  ['Body', [['Bit mouth', true], ['Stress', true], ['Bad sleep', true], ['Feeling ill', true], ['Dental visit', false]]],
+  ['Supplements', [['B complex', true]]]
+];
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    const on = {}; TRACK.forEach(([, xs]) => xs.forEach(([n, v]) => { on[n] = v; }));
+    this.state = { on, nudge: true };
+  }
+  renderVals() {
+    const base = 'display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 12px; border: 0; border-radius: 18px; font-size: 14px; font-weight: 600; box-sizing: border-box; ';
+    const groups = TRACK.map(([name, xs]) => ({
+      name,
+      items: xs.map(([n]) => {
+        const v = this.state.on[n];
+        return { n, v, tap: () => { const on = Object.assign({}, this.state.on); on[n] = !on[n]; this.setState({ on }); },
+          style: base + (v ? 'background: #2F3846; color: #FFFFFF' : 'background: #111113; color: #98989F') };
+      })
+    }));
+    const nudge = this.state.nudge;
+    return {
+      groups, nudge,
+      toggleNudge: () => this.setState({ nudge: !this.state.nudge }),
+      nudgeLabel: nudge ? 'On' : 'Off',
+      nudgeStyle: 'min-width: 60px; ' + base + (nudge ? 'background: #2F3846; color: #FFFFFF' : 'background: #111113; color: #98989F')
+    };
+  }
+}
+
+</script>
+</body>
+</html>
