@@ -35,3 +35,6 @@ google-services.json
 # Claude Code (kept out of git; Syncthing carries them)
 CLAUDE.md
 .claude/
+
+# Kotlin compiler caches
+.kotlin/

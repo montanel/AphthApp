@@ -20,4 +20,4 @@ the system font.
 copies of it as of the Revision line in `DECISIONS.md`. The numbers on the screens are made-up
 sample data.
 
-**Phone:** Galaxy S26 Ultra, 412 × 891 dp. The screens are drawn at exactly that size.
+**Phone:** Galaxy S26 Ultra at Luca's display zoom, 384 × 832 dp. The screens are drawn at exactly that size.

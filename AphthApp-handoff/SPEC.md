@@ -1,4 +1,4 @@
-# AphthApp — UI spec (v3.2, 2026-11-24)
+# AphthApp — UI spec (v4, 2026-11-24)
 
 What the app looks like and how it behaves. The design files in `design/` are the picture; this
 file is the words. Where they disagree, ask (`DECISIONS.md`, Open questions). Decisions and their
@@ -6,6 +6,9 @@ reasons are in `DECISIONS.md`; this file says only what to build.
 
 **Goal:** a quick evening log of what happened that day, plus whether an aphtha hurt, so patterns
 can be found over months. Logging should take about 20 seconds.
+
+**Screen size:** every design is drawn at **384 × 832 dp**, the size of Luca's Galaxy S26 Ultra at
+its current display zoom (R-03).
 
 ---
 
@@ -23,6 +26,7 @@ can be found over months. Logging should take about 20 seconds.
 | text | `#F2F2F7` | main text (white `#FFFFFF` on selected chips) |
 | muted | `#98989F` | secondary text, unselected chip text, unselected tabs, labels |
 | quiet | `#636366` | the faintest text: chevrons, footnotes, the "don't know" outline |
+| iconBg | `#1A1F29` | the app icon's background, and the round icon background on the launch screen (Q-008) |
 | info | `#8FA3C0` | blue-grey accent: the app icon's ring, progress, "Can't tell" values |
 | red | `#FF453A` | aphthas only: aphtha card on, episode strips in History, suspects in Insights, the app icon's dot; also "Delete all data" |
 | redSoft | `#FF453A` at 28% opacity (on `card` it shows as about `#5C2826`) | aphtha days in the month calendar. It's the same red, toned down so a whole week of aphtha days isn't glaring |
@@ -46,8 +50,8 @@ Inter (bundle it, or use Google Fonts downloadable fonts). Sizes in sp:
 
 ## 3. Shapes and spacing
 
-- Screen padding: 14 dp left and right; 44 dp top (status bar); content stops 100 dp above the
-  bottom so the floating tab bar never covers it.
+- Screen padding: 14 dp left and right; 40 dp top in the drawings (use the real status-bar inset);
+  content stops about 100 dp above the bottom so the floating tab bar never covers it.
 - Gaps between blocks: 12 dp. Inside cards: 8 dp.
 - Cards: 20 dp corners, padding 16–18 dp.
 - Anything pill-shaped is fully round (corner = half its height): chips (44 dp tall), small pills
@@ -72,27 +76,34 @@ Inter (bundle it, or use Google Fonts downloadable fonts). Sizes in sp:
 Design: `design/Main.dc.html`. Fits on one screen. From top to bottom:
 
 1. **Title row:** "Today", the date on the right ("Tue 10 Nov").
-2. **Aphtha card:** full width, 80 dp tall, 20 dp corners. "Aphtha" on the left, a 46 dp ring on
+2. **Aphtha card:** full width, 72 dp tall, 20 dp corners. "Aphtha" on the left, a 46 dp ring on
    the right. Off: `card` with an empty `ring`. On: `red` fill, the ring becomes a white disc
    with a red check. Off every day by default. Tapping toggles it.
 3. **List area:** the chips (section 6), in the current sort mode (section 7).
-4. **Sort indicator:** two small icons (a grid for categories, a clock for often used) in a
+4. **Sort indicator:** two small icons (a grid for categories, a clock for most recent) in a
    `chipOff` capsule, centred just above the tab bar. The active one is on `hairline` with `text`
-   colour; the other is `ring`. It only shows the mode; it cannot be tapped.
+   colour; the other is `ring`. **One tap on it switches the mode** (D-026): light haptic, press
+   scale 0.96. Its touch area is at least 44 dp tall, even though the capsule is drawn smaller.
 5. **Tab bar**, Today selected.
+
+**Which day "Today" is:** a log day runs from 04:00 to 04:00 on the phone's local clock (D-023,
+D-025). Until 04:00, Today shows and saves to the previous date, and its title row shows that
+date.
 
 ## 6. Chips
 
-- A chip is a pill, 44 dp tall, 14 dp side padding, 15 sp / 600 text.
+- A chip is a pill, 44 dp tall, 12 dp side padding, 15 sp / 600 text.
   - Unselected: `chipOff`, `muted` text.
   - Selected: `chipOn`, white text.
   - The weight never changes, so the width never changes.
-- Laid out in a `FlowRow`, 6 dp apart side to side and 8 dp between lines.
+- Laid out in a `FlowRow`, 6 dp apart side to side and between lines. Group name and its chips 5 dp
+  apart, groups 8 dp apart.
 - **Yes/no chips:** tap toggles.
 - **Tea, Coffee (count):** each tap adds a cup, 0 → 1 → 2 → 3 → 4+ → 0. Selected when above 0. The
   count is a 20 dp badge on the chip's top-right corner (offset −5 dp, −4 dp), drawn over the
-  edge, hidden at 0. Minimum width 78 dp.
-- **Stress (level):** 0 → 1 → 2 → 0, with "•" or "••" in the same badge. Minimum width 78 dp.
+  edge, hidden at 0. Minimum width 72 dp.
+- **Brushed (times):** 0 → 1 → 2 → 0, the number in the same badge, minimum width 72 dp (D-024).
+- **Stress (level):** 0 → 1 → 2 → 0, with "•" or "••" in the same badge. Minimum width 72 dp.
 - **SLS toothpaste (three states):** off (no SLS) → selected (SLS) → "don't know" → off.
   - "Don't know" is a transparent chip with a 1.5 dp dashed `quiet` outline drawn inside its
     edge, and a small "don't know" line (10.5 sp) under the name. Same width.
@@ -104,7 +115,7 @@ Design: `design/Main.dc.html`. Fits on one screen. From top to bottom:
 |---|---|
 | Drinks | Tea (count), Coffee (count), Alcohol |
 | Food | Banana, Nuts, Chocolate, Raw apple/carrot, Spicy, Citrus/tomato |
-| Mouth care | Brushed 2×, Water floss, Floss, SLS toothpaste (three states) |
+| Mouth care | Brushed (0 to 2), Water floss, Floss, SLS toothpaste (three states) |
 | Body | Bit mouth, Stress (level), Bad sleep, Feeling ill |
 | Supplements | B complex |
 | Hidden until switched on in Settings | Crunchy food (Food), Gum/mints (Food), Mouthwash (Mouth care), Dental visit (Body) |
@@ -113,12 +124,18 @@ Design: `design/Main.dc.html`. Fits on one screen. From top to bottom:
 
 - **By category:** the groups above in that order, each under a 12 sp `muted` group name. The list
   hugs the top of its area.
-- **Often used:** one flat list, no group names, ranked by taps in the last 30 days with recent days
-  counting a bit more. **The most-used chip comes last, at the bottom right**, and the list hugs
-  the bottom of its area, just above the sort indicator. The order is fixed while the screen is
-  open and recalculated the next time it opens, so nothing moves under a finger.
-- **Switching:** a double-tap anywhere between the aphtha card and the tab bar that isn't a chip.
-  That includes gaps, group names, empty space and the sort indicator.
+- **Most recent** (replaces "often used", D-027): one flat list, no group names, ordered by when
+  each item was last tapped (any tap that changes its value, on any day). **The most recently
+  tapped chip comes last, at the bottom right**, nearest the thumb; items never tapped keep the
+  category order and come first. The list hugs the bottom of its area, just above the sort
+  indicator.
+  - **When chips move:** the order is worked out each time Today comes on screen (opening the app,
+    coming back to it, switching to the Today tab) and is then fixed while Today stays on screen.
+    Tapping a chip changes its time but does not move it, so tapping Tea twice never means chasing
+    it. The new order shows the next time Today opens, drawn straight away with no animation.
+  - Switching into this mode also works out the order at that moment.
+- **Switching:** a double-tap anywhere between the aphtha card and the tab bar that isn't a chip
+  (gaps, group names, empty space), or one tap on the sort indicator.
   - Compose: one container holding the list and the indicator, with
     `pointerInput { detectTapGestures(onDoubleTap = …) }`; the chips are `clickable` and keep
     their own taps.
@@ -130,7 +147,8 @@ Design: `design/Main.dc.html`. Fits on one screen. From top to bottom:
 Design: `design/PastDay.dc.html`. The Today screen for another date:
 - **Title row:** a back button (to the month), and the date as the title ("Sun 8 Nov").
 - **Banner:** under the title, a `chipOn` strip with a small pencil icon and "Editing Sunday 8
-  November" (14 sp / 600, white, 14 dp corners).
+  November" (13 sp / 600, white, 12 dp corners, 6 × 12 dp padding). It sits 8 dp under the title
+  row, so the past day still fits on one screen.
 - **Contents:** the chips show what was logged that day, or nothing if it wasn't.
 - **Tab bar:** History stays selected.
 
@@ -142,7 +160,13 @@ Design: `design/Notification.dc.html` (a lock-screen mock).
 - **Next-morning nudge:** at 09:00, only if the day before was not logged, and only if turned on in
   Settings. Title "Yesterday is still empty", text "Fill it in while you remember." Opens
   yesterday's log.
-- The small icon is the app icon.
+- The small icon is the app icon's ring and dot in white (Android shows it in one colour).
+
+## 9b. Launch screen
+
+Design: `design/Launch.dc.html`. Android 12+ `SplashScreen`: background `#000000`, the icon's
+ring and dot centred, on a round icon background in the app icon's tint (`iconBg`,
+`#1A1F29`). No text. Shown only as long as the system needs.
 
 ## 10. History
 
@@ -153,7 +177,7 @@ Design: `design/Calendar.dc.html`. Fits on one screen. From top to bottom:
    - Days aphtha-free since the last aphtha day. While an episode is on, show the episode's day
      count instead, labelled "days into this episode".
    - Episodes this year.
-   - Days usually between episodes: the median gap between episode starts, shown as "~31".
+   - "days between episodes": the median gap between episode starts, shown as "~31".
 3. **Year card** (`card`, 20 dp corners, 8 × 18 dp padding): one row per month, Jan to Dec. Each row
    is **one tap target**, 44 dp tall and the full width, that opens that month.
    - The row: the month's three letters (13 sp; `text` for the current month, `muted` for past
@@ -177,8 +201,7 @@ Design: `design/Month.dc.html`.
      - Today: a 2 dp white ring.
      - Future: `quietLine` text, can't be tapped.
    - A legend under the grid: Aphtha, Not logged.
-4. **Hint:** "Swipe for other months, tap a day to edit it".
-5. **Behaviour:** swiping left or right changes the month. Tapping a past day opens it (section 8).
+4. **Behaviour:** swiping left or right changes the month. Tapping a past day opens it (section 8).
 
 ## 12. Insights (later, not in v1)
 
@@ -255,6 +278,12 @@ setting.
 - **No record = "not logged".** That is different from a logged day with nothing ticked.
 - **Items:** `key`, `label`, `group`, `type`, `visible`, `order`, and `testable` (remove only, add or
   remove, watch only; unused for now, for later tests). Raw apple/carrot is watch only.
+- **Brushed:** 0, 1 or 2 times (D-024).
+- **Log day:** runs from 04:00 to 04:00 local time (D-023).
+- **Time zone:** each day saves `zone`, the phone's time zone when its record is created (e.g.
+  `Asia/Seoul`) (D-025).
+- **Most recent order:** needs, for each item, the time it was last tapped. Keep it with the items
+  (it is not daily data).
 - **Episode:** a run of aphtha days. Runs separated by one or two no days are the same episode.
   The first day is the episode's start.
 - **Export:** CSV, one row per day, one column per item.

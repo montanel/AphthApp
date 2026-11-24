@@ -28,8 +28,8 @@ button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparen
 </style>
 </helmet>
 
-<div style="position: relative; width: 412px; height: 891px; box-sizing: border-box; background: #000000; color: #F2F2F7; font-family: Inter, sans-serif; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 86px">
-<div style="display: flex; flex-direction: column; gap: 12px; padding: 44px 14px 0">
+<div style="position: relative; width: 384px; height: 832px; box-sizing: border-box; background: #000000; color: #F2F2F7; font-family: Inter, sans-serif; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 86px">
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 40px 14px 0">
 <header style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px; min-height: 36px">
 <h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em">Today</h1>
 <span style="font-size: 15px; color: #98989F">Tue 10 Nov</span>
@@ -41,9 +41,9 @@ button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparen
 </div>
 <div onDoubleClick="{{ dbl }}" style="flex-grow: 1; display: flex; flex-direction: column; min-height: 0"><div style="{{ listStyle }}">
 <sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
-<section data-zone="list" style="display: flex; flex-direction: column; gap: 6px">
+<section data-zone="list" style="display: flex; flex-direction: column; gap: 5px">
 <sc-if value="{{ g.hasName }}" hint-placeholder-val="{{ true }}"><h2 data-zone="list" style="margin: 0; padding: 0 4px; font-size: 12px; line-height: 14px; font-weight: 600; color: #98989F">{{ g.name }}</h2></sc-if>
-<div data-zone="list" style="display: flex; flex-wrap: wrap; gap: 8px 6px">
+<div data-zone="list" style="display: flex; flex-wrap: wrap; gap: 6px 6px">
 <sc-for list="{{ g.items }}" as="c" hint-placeholder-count="4">
 <button type="button" class="chip" onClick="{{ c.tap }}" aria-pressed="{{ c.on }}" style="{{ c.style }}"><span>{{ c.text }}</span><sc-if value="{{ c.hasSub }}" hint-placeholder-val="{{ false }}"><span style="{{ c.subStyle }}">{{ c.sub }}</span></sc-if><sc-if value="{{ c.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="{{ c.badgeStyle }}">{{ c.num }}</span></sc-if></button>
 </sc-for>
@@ -51,43 +51,45 @@ button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparen
 </section>
 </sc-for>
 </div>
-<div role="img" aria-label="{{ modeLabel }}" style="flex-shrink: 0; align-self: center; margin-bottom: 6px; display: flex; gap: 2px; padding: 2px; border-radius: 12px; background: #111113">
+<button type="button" class="chip" aria-label="{{ modeLabel }}" onClick="{{ toggleMode }}" style="flex-shrink: 0; align-self: center; margin-bottom: 6px; display: flex; gap: 2px; padding: 2px; border: 0; border-radius: 12px; background: #111113; min-height: 24px">
 <span style="{{ catInd }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg></span><span style="{{ oftenInd }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"></path><path d="M3.5 4.5v4h4"></path><path d="M12 8v4.2l2.8 1.8"></path></svg></span>
-</div>
+</button>
 </div>
 <nav aria-label="Main" style="position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: 32px; background: #1C1C1E; box-shadow: 0 8px 28px rgba(0,0,0,0.6)"><a class="tabi" href="Main.dc.html" aria-current="page" style="background: #2F3846; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="5"></rect><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg>Today</a><a class="tabi" href="Calendar.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="4"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>History</a><a class="tabi" href="Settings.dc.html" style="color: #98989F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Settings</a></nav>
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 412, "height": 891}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 384, "height": 832}}'>
 
 const ITEMS = [
   ['tea', 'Tea', 'count', 'Drinks'], ['coffee', 'Coffee', 'count', 'Drinks'], ['alcohol', 'Alcohol', 'bin', 'Drinks'],
   ['banana', 'Banana', 'bin', 'Food'], ['nuts', 'Nuts', 'bin', 'Food'], ['choc', 'Chocolate', 'bin', 'Food'],
   ['rawfruit', 'Raw apple/carrot', 'bin', 'Food'], ['spicy', 'Spicy', 'bin', 'Food'], ['acidic', 'Citrus/tomato', 'bin', 'Food'],
-  ['brush', 'Brushed 2×', 'bin', 'Mouth care'], ['water', 'Water floss', 'bin', 'Mouth care'], ['floss', 'Floss', 'bin', 'Mouth care'],
+  ['brush', 'Brushed', 'times', 'Mouth care'], ['water', 'Water floss', 'bin', 'Mouth care'], ['floss', 'Floss', 'bin', 'Mouth care'],
   ['sls', 'SLS toothpaste', 'sls', 'Mouth care'],
   ['bite', 'Bit mouth', 'bin', 'Body'], ['stress', 'Stress', 'stress', 'Body'], ['sleep', 'Bad sleep', 'bin', 'Body'], ['ill', 'Feeling ill', 'bin', 'Body'],
   ['b', 'B complex', 'bin', 'Supplements']
 ];
-const OFTEN = ['tea', 'coffee', 'brush', 'water', 'b', 'sls', 'choc', 'nuts', 'stress', 'spicy', 'sleep', 'banana', 'floss', 'acidic', 'bite', 'alcohol', 'ill', 'rawfruit'];
+// most recent mode: last tapped first in this list; shown reversed so the most recent is last, bottom right
+const OFTEN = ['tea', 'brush', 'b', 'water', 'coffee', 'stress', 'sls', 'choc', 'nuts', 'spicy', 'sleep', 'banana', 'floss', 'acidic', 'bite', 'alcohol', 'ill', 'rawfruit'];
 const COUNT = 'badge';
 class Component extends DCLogic {
   constructor(p) {
     super(p);
-    this.state = { mode: 'cat', aph: false, v: { tea: 2, coffee: 1, alcohol: false, banana: false, nuts: true, choc: true, rawfruit: false, spicy: false, acidic: false, brush: true, water: true, floss: false, sls: 'unsure', bite: false, stress: 1, sleep: false, ill: false, b: true } };
+    this.state = { mode: 'cat', aph: false, v: { tea: 2, coffee: 1, alcohol: false, banana: false, nuts: true, choc: true, rawfruit: false, spicy: false, acidic: false, brush: 2, water: true, floss: false, sls: 'unsure', bite: false, stress: 1, sleep: false, ill: false, b: true } };
   }
   set(k, val) { const v = Object.assign({}, this.state.v); v[k] = val; this.setState({ v }); }
   item(d) {
     const [k, label, kind] = d, x = this.state.v[k];
     let on = false, unsure = false, num = '', sub = '', tap;
     if (kind === 'bin') { on = !!x; tap = () => this.set(k, !this.state.v[k]); }
+    if (kind === 'times') { on = x > 0; num = x > 0 ? String(x) : ''; tap = () => this.set(k, (this.state.v[k] + 1) % 3); }
     if (kind === 'count') { on = x > 0; num = x > 0 ? (x >= 4 ? '4+' : String(x)) : ''; tap = () => { const c = this.state.v[k]; this.set(k, c >= 4 ? 0 : c + 1); }; }
     if (kind === 'stress') { on = x > 0; num = x === 2 ? '••' : (x === 1 ? '•' : ''); tap = () => this.set(k, (this.state.v[k] + 1) % 3); }
     if (kind === 'sls') { on = x === 'yes'; unsure = x === 'unsure'; if (unsure) sub = 'don’t know'; tap = () => this.set(k, { no: 'yes', yes: 'unsure', unsure: 'no' }[this.state.v[k]]); }
     if (COUNT === 'under' && num) { sub = num === '•' || num === '••' ? num : '×' + num; num = ''; }
-    const fixed = kind === 'count' || kind === 'stress';
-    const base = 'position: relative; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 0; border-radius: 22px; font-size: 15px; font-weight: 600; line-height: 1.15; box-sizing: border-box; ' + (fixed ? 'min-width: 78px; ' : '');
+    const fixed = kind === 'count' || kind === 'stress' || kind === 'times';
+    const base = 'position: relative; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; border: 0; border-radius: 22px; font-size: 15px; font-weight: 600; line-height: 1.15; box-sizing: border-box; ' + (fixed ? 'min-width: 72px; ' : '');
     let style = base + 'background: #111113; color: #98989F';
     if (on) style = base + 'background: #2F3846; color: #FFFFFF';
     if (unsure) style = base + 'background: transparent; color: #F2F2F7; outline: 1.5px dashed #636366; outline-offset: -1.5px';
@@ -105,12 +107,13 @@ class Component extends DCLogic {
     else { const by = {}; ITEMS.forEach((d) => { by[d[0]] = d; }); groups = [{ name: '', hasName: false, items: OFTEN.slice().reverse().map((k) => this.item(by[k])) }]; }
     const ind = (on) => 'display: flex; align-items: center; justify-content: center; width: 26px; height: 20px; border-radius: 10px; transition: background-color 200ms, color 200ms; ' + (on ? 'background: #2C2C2E; color: #F2F2F7' : 'color: #48484A');
     return {
-      groups, aph: a, modeLabel: cat ? 'Sorted by category' : 'Sorted by most used',
+      groups, aph: a, modeLabel: cat ? 'Sorted by category, tap to sort by most recent' : 'Sorted by most recent, tap to sort by category',
+      toggleMode: () => this.setState({ mode: this.state.mode === 'cat' ? 'often' : 'cat' }),
       catInd: ind(cat), oftenInd: ind(!cat),
       dbl: (e) => { let t = e && e.target; const stop = e && e.currentTarget; while (t && t !== stop) { if (t.tagName === 'BUTTON') return; t = t.parentNode; } this.setState({ mode: this.state.mode === 'cat' ? 'often' : 'cat' }); },
       toggleAph: () => this.setState({ aph: !this.state.aph }),
-      listStyle: 'flex-grow: 1; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 8px; justify-content: ' + (cat ? 'flex-start' : 'flex-end'),
-      aphCard: 'display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 80px; padding: 14px 16px 14px 20px; border: 0; border-radius: 20px; text-align: left; color: #FFFFFF; background: ' + (a ? '#FF453A' : '#1C1C1E'),
+      listStyle: 'flex-grow: 1; display: flex; flex-direction: column; gap: 8px; padding: 10px 14px 6px; justify-content: ' + (cat ? 'flex-start' : 'flex-end'),
+      aphCard: 'display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 72px; padding: 12px 14px 12px 20px; border: 0; border-radius: 20px; text-align: left; color: #FFFFFF; background: ' + (a ? '#FF453A' : '#1C1C1E'),
       aphCircle: 'display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 23px; flex-shrink: 0; box-sizing: border-box; transition: background-color 200ms; ' + (a ? 'background: #FFFFFF; color: #FF453A' : 'border: 2.5px solid #48484A; color: transparent')
     };
   }
