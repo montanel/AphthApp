@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
  * File layout:
  * ```
  * {"version": 1,
- *  "settings": {"sortRecent": false},
+ *  "settings": {"sortRecent": false, "eveningMinutes": 1290, "nudge": true},
  *  "items": [{"key": "tea", "label": "Tea", "group": "Drinks", "type": "count",
  *             "visible": true, "order": 0, "testable": null, "lastTapped": 1764010000000}, ...],
  *  "days": {"2026-11-24": {"aphtha": false, "values": {"tea": 2, "coffee": 0, ...},
@@ -29,6 +29,9 @@ import java.util.concurrent.Executors
  * ```
  * Call [load] once before using it.
  */
+/** Default evening reminder time: 21:30, in minutes after midnight. */
+const val DEFAULT_EVENING = 21 * 60 + 30
+
 object Store {
     private lateinit var file: AtomicFile
     private val writer = Executors.newSingleThreadExecutor()
@@ -42,6 +45,14 @@ object Store {
 
     /** True when Today shows the "most recent" order instead of categories. */
     var sortRecent by mutableStateOf(false)
+        private set
+
+    /** Evening reminder time, in minutes after midnight (default 21:30). */
+    var eveningMinutes by mutableIntStateOf(DEFAULT_EVENING)
+        private set
+
+    /** Whether the 09:00 nudge comes when the day before wasn't logged. */
+    var nudge by mutableStateOf(true)
         private set
 
     /** Counts the times the app came to the front; Today works out its "most recent" order again each time. */
@@ -62,7 +73,11 @@ object Store {
         }
         val root = JSONObject(text)
         // "sortOften" is the name used before "most recent" replaced "often used".
-        root.optJSONObject("settings")?.let { sortRecent = it.optBoolean("sortRecent", it.optBoolean("sortOften", false)) }
+        root.optJSONObject("settings")?.let {
+            sortRecent = it.optBoolean("sortRecent", it.optBoolean("sortOften", false))
+            eveningMinutes = it.optInt("eveningMinutes", DEFAULT_EVENING)
+            nudge = it.optBoolean("nudge", true)
+        }
         root.optJSONArray("items")?.let { arr ->
             val stored = (0 until arr.length()).map { i ->
                 val o = arr.getJSONObject(i)
@@ -129,9 +144,42 @@ object Store {
         save()
     }
 
-    /** Switches Today between the category and "often used" orders, and saves. */
+    /** Switches Today between the category and "most recent" orders, and saves. */
     fun switchSort() {
         sortRecent = !sortRecent
+        save()
+    }
+
+    fun setEvening(minutes: Int) {
+        eveningMinutes = minutes
+        save()
+    }
+
+    /** Turns the next-morning nudge on or off, and saves. */
+    fun switchNudge() {
+        nudge = !nudge
+        save()
+    }
+
+    /** Shows or hides an item on Today. Hidden items keep their history. */
+    fun setVisible(key: String, visible: Boolean) {
+        items = items.map { if (it.key == key) it.copy(visible = visible) else it }
+        save()
+    }
+
+    /** Adds a yes/no item named `label` at the end of `group`, shown on Today. */
+    fun addItem(label: String, group: String) {
+        items = items + newItem(items, label, group)
+        save()
+    }
+
+    /**
+     * Deletes the log: every day, and when each item was last tapped. What is tracked (shown,
+     * hidden and added items) and the reminder settings stay.
+     */
+    fun deleteAll() {
+        days.clear()
+        items = items.map { it.copy(lastTapped = null) }
         save()
     }
 
@@ -152,7 +200,10 @@ object Store {
     private fun toJson(): JSONObject {
         val root = JSONObject()
         root.put("version", 1)
-        root.put("settings", JSONObject().put("sortRecent", sortRecent))
+        root.put(
+            "settings",
+            JSONObject().put("sortRecent", sortRecent).put("eveningMinutes", eveningMinutes).put("nudge", nudge),
+        )
         root.put("items", org.json.JSONArray().apply {
             for (it in items) put(
                 JSONObject()

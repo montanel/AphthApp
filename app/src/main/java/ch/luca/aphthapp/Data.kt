@@ -2,6 +2,7 @@ package ch.luca.aphthapp
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 /** How an item is logged and what its stored value means. */
 enum class ItemType(val code: String) {
@@ -119,17 +120,120 @@ fun nextValue(type: ItemType, value: Int): Int = when (type) {
 }
 
 /** Hour of the morning when a new log day starts; before it, the previous day is still "today". */
-const val DAY_START_HOUR = 4
+const val DAY_START_HOUR = 2
 
 /** The log day that `now` (local wall-clock time) belongs to. */
 fun logDate(now: LocalDateTime): LocalDate = now.minusHours(DAY_START_HOUR.toLong()).toLocalDate()
 
-/** Visible items grouped for the "by category" view: groups in [GROUPS] order, then by `order`. */
-fun byCategory(items: List<Item>): List<Pair<String, List<Item>>> =
+/**
+ * Items grouped for the "by category" view: groups in [GROUPS] order, then by `order`. Only
+ * visible items unless `includeHidden`, which Settings uses to list everything.
+ */
+fun byCategory(items: List<Item>, includeHidden: Boolean = false): List<Pair<String, List<Item>>> =
     GROUPS.mapNotNull { g ->
-        val inGroup = items.filter { it.visible && it.group == g }.sortedBy { it.order }
+        val inGroup = items.filter { (includeHidden || it.visible) && it.group == g }.sortedBy { it.order }
         if (inGroup.isEmpty()) null else g to inGroup
     }
+
+/**
+ * A new yes/no item named `label` at the end of `group`. Its key is made from the label and
+ * made unique against `items`, since keys must never change or repeat.
+ */
+fun newItem(items: List<Item>, label: String, group: String): Item {
+    val slug = label.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_').ifEmpty { "item" }
+    val keys = items.map { it.key }.toSet()
+    var key = "my_$slug"
+    var n = 2
+    while (key in keys) key = "my_${slug}_${n++}"
+    val order = (items.filter { it.group == group }.maxOfOrNull { it.order } ?: -1) + 1
+    return Item(key, label.trim(), group, ItemType.YES_NO, visible = true, order = order)
+}
+
+/** A run of aphtha days, from its first to its last aphtha day (DECISIONS D-009). */
+data class Episode(val start: LocalDate, val end: LocalDate)
+
+/** Most days without an aphtha that can sit between two aphtha days of the same episode. */
+const val EPISODE_MAX_GAP = 2
+
+/** All episodes in the log, oldest first. Days that weren't logged count as aphtha-free. */
+fun episodes(days: Map<LocalDate, DayRecord>): List<Episode> {
+    val result = mutableListOf<Episode>()
+    for (d in days.filterValues { it.aphtha }.keys.sorted()) {
+        val last = result.lastOrNull()
+        if (last != null && d.toEpochDay() - last.end.toEpochDay() <= EPISODE_MAX_GAP + 1) {
+            result[result.size - 1] = last.copy(end = d)
+        } else {
+            result += Episode(d, d)
+        }
+    }
+    return result
+}
+
+/**
+ * The first History number: `(count, ongoing)`. While an episode is on (an aphtha on `today`, or
+ * on the day before while `today` isn't logged yet), the count is the days into the episode,
+ * today included. Otherwise it is the days since the last aphtha day. Null if there has never
+ * been one.
+ */
+fun currentStreak(days: Map<LocalDate, DayRecord>, eps: List<Episode>, today: LocalDate): Pair<Int, Boolean>? {
+    val last = eps.lastOrNull { !it.start.isAfter(today) } ?: return null
+    val lastAphtha = days.keys.filter { days.getValue(it).aphtha && !it.isAfter(today) }.max()
+    val ongoing = lastAphtha == today || (lastAphtha == today.minusDays(1) && days[today] == null)
+    return if (ongoing) {
+        (today.toEpochDay() - last.start.toEpochDay() + 1).toInt() to true
+    } else {
+        (today.toEpochDay() - lastAphtha.toEpochDay()).toInt() to false
+    }
+}
+
+/** The median number of days between consecutive episode starts, or null with fewer than two episodes. */
+fun medianGap(eps: List<Episode>): Double? {
+    if (eps.size < 2) return null
+    val gaps = eps.zipWithNext { a, b -> (b.start.toEpochDay() - a.start.toEpochDay()).toDouble() }.sorted()
+    val mid = gaps.size / 2
+    return if (gaps.size % 2 == 1) gaps[mid] else (gaps[mid - 1] + gaps[mid]) / 2
+}
+
+/** Episodes that have at least one day in `month`. */
+fun episodesIn(eps: List<Episode>, month: YearMonth): List<Episode> =
+    eps.filter { !it.end.isBefore(month.atDay(1)) && !it.start.isAfter(month.atEndOfMonth()) }
+
+/**
+ * Day-of-month runs for a month's strip in History: the logged days, and each episode clipped
+ * to the month. Both are lists of `first..last` day numbers.
+ */
+fun monthStrip(month: YearMonth, days: Map<LocalDate, DayRecord>, eps: List<Episode>): Pair<List<IntRange>, List<IntRange>> {
+    val logged = mutableListOf<IntRange>()
+    for (d in 1..month.lengthOfMonth()) {
+        if (days[month.atDay(d)] == null) continue
+        val prev = logged.lastOrNull()
+        if (prev != null && prev.last == d - 1) logged[logged.size - 1] = prev.first..d else logged += d..d
+    }
+    val aphtha = episodesIn(eps, month).map { e ->
+        val from = if (e.start.isBefore(month.atDay(1))) 1 else e.start.dayOfMonth
+        val to = if (e.end.isAfter(month.atEndOfMonth())) month.lengthOfMonth() else e.end.dayOfMonth
+        from..to
+    }
+    return logged to aphtha
+}
+
+/**
+ * The log as CSV: one row per logged day, oldest first; columns `date`, `aphtha` (0/1), `zone`,
+ * then one per item key (hidden and added items too). A cell is empty when the item wasn't on
+ * Today that day, or the zone wasn't saved yet.
+ */
+fun toCsv(items: List<Item>, days: Map<LocalDate, DayRecord>): String {
+    val keys = items.map { it.key }
+    val sb = StringBuilder()
+    sb.append((listOf("date", "aphtha", "zone") + keys).joinToString(",")).append('\n')
+    for (date in days.keys.sorted()) {
+        val r = days.getValue(date)
+        val cells = listOf(date.toString(), if (r.aphtha) "1" else "0", r.zone ?: "") +
+            keys.map { r.values[it]?.toString() ?: "" }
+        sb.append(cells.joinToString(",")).append('\n')
+    }
+    return sb.toString()
+}
 
 /**
  * Visible items for the "most recent" view: never-tapped items first, in category order, then

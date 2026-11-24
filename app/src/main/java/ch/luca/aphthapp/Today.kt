@@ -67,12 +67,15 @@ import java.util.Locale
 
 private val shortDate = DateTimeFormatter.ofPattern("EEE d MMM", Locale.ENGLISH)
 
+private val longDate = DateTimeFormatter.ofPattern("EEEE d MMMM", Locale.ENGLISH)
+
 /**
  * The log for one day: title row, aphtha card, the chips and the sort indicator. It fills the
- * space above the tab bar, `bottomGap` being the height the tab bar takes.
+ * space above the tab bar, `bottomGap` being the height the tab bar takes. With `onBack` it is
+ * a past day opened from History: a back button, the date as the title and an "Editing" banner.
  */
 @Composable
-fun DayScreen(date: LocalDate, bottomGap: Dp) {
+fun DayScreen(date: LocalDate, bottomGap: Dp, onBack: (() -> Unit)? = null) {
     val record = Store.days[date] ?: DayRecord()
     val view = LocalView.current
     // The "most recent" order is worked out when Today comes on screen (a tab switch recreates
@@ -87,7 +90,14 @@ fun DayScreen(date: LocalDate, bottomGap: Dp) {
     }
     Column(Modifier.fillMaxSize().padding(bottom = bottomGap)) {
         Column(Modifier.padding(horizontal = 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            TitleRow("Today", date.format(shortDate))
+            if (onBack == null) {
+                TitleRow("Today", date.format(shortDate))
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    BackTitleRow(date.format(shortDate), "", "Back to " + date.month.getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH), onBack)
+                    EditingBanner(date)
+                }
+            }
             AphthaCard(record.aphtha) {
                 val on = !record.aphtha
                 if (on) view.performHapticFeedback(
@@ -114,6 +124,19 @@ fun DayScreen(date: LocalDate, bottomGap: Dp) {
             }
             SortIndicator(Store.sortRecent, switchSort, Modifier.align(Alignment.CenterHorizontally).padding(bottom = 6.dp))
         }
+    }
+}
+
+/** The blue-grey strip under a past day's title: a pencil and "Editing Sunday 8 November". */
+@Composable
+private fun EditingBanner(date: LocalDate) {
+    Row(
+        Modifier.fillMaxWidth().background(C.chipOn, RoundedCornerShape(12.dp)).padding(horizontal = 12.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(rememberVectorPainter(Icons.pencil), null, Modifier.size(16.dp), colorFilter = ColorFilter.tint(C.white))
+        BasicText("Editing " + date.format(longDate), style = type(13.sp, FontWeight.SemiBold, C.white))
     }
 }
 
@@ -207,7 +230,7 @@ private fun Chip(item: Item, value: Int, onTap: () -> Unit) {
             Modifier
                 .defaultMinSize(minWidth = if (fixedWidth) 72.dp else Dp.Unspecified, minHeight = 44.dp)
                 .background(bg, CircleShape)
-                .then(if (unsure) Modifier.dashedOutline() else Modifier)
+                .then(if (unsure) Modifier.dashedOutline(C.quiet) else Modifier)
                 .clickable(source, indication = null, onClick = onTap)
                 .padding(horizontal = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -221,18 +244,6 @@ private fun Chip(item: Item, value: Int, onTap: () -> Unit) {
         }
         Badge(badge, Modifier.align(Alignment.TopEnd))
     }
-}
-
-/** The 1.5 dp dashed `quiet` outline of a "don't know" chip, drawn inside its edge. */
-private fun Modifier.dashedOutline() = drawBehind {
-    val w = 1.5.dp.toPx()
-    drawRoundRect(
-        C.quiet,
-        topLeft = Offset(w / 2, w / 2),
-        size = Size(size.width - w, size.height - w),
-        cornerRadius = CornerRadius((size.height - w) / 2),
-        style = Stroke(w, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx()))),
-    )
 }
 
 /** The white count / level badge on a chip's top-right corner, with a 2 dp black ring. */

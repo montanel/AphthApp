@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android's clock dialog for the evening reminder time, in the app's blue-grey accent
+         (`info`) on the card grey instead of the system teal. -->
+    <style name="AphthApp.TimePicker" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">#8FA3C0</item>
+        <item name="android:colorBackground">#1C1C1E</item>
+    </style>
+</resources>

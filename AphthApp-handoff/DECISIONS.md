@@ -1,6 +1,6 @@
 # DECISIONS — AphthApp
 
-Revision 7, 2026-11-24, code
+Revision 8, 2026-11-24, code
 
 This file is the single source of truth for what's been decided about the app and whether it's
 built. It travels between two places: the code repo (worked on with Claude Code) and the design
@@ -76,7 +76,20 @@ These apply to everything and don't move.
 
 ## Open questions
 
-*(none right now)*
+- **Q-009** *Where the tab bar sits.* Spec section 4 says "22 dp above the bottom inset" (above the
+  gesture bar), but the drawings put it 22 dp above the bottom of the 832 dp screen. On Luca's
+  phone the gesture bar is about 15 dp, so following the spec text pushed the tab bar 15 dp up and
+  History no longer fit (the year card ran into it). *Code built:* 22 dp from the bottom as drawn,
+  but never closer than 8 dp to the gesture bar (`MainActivity.kt`). Design: confirm and update
+  the spec, or say otherwise.
+- **Q-010** *Evening reminder when today is already logged.* The spec sends "How was today?"
+  every evening. If Luca has already logged the day before 21:30, it is noise. Options: (a) as
+  specified, always; (b) skip it when today already has a record. (b) is one line of code.
+  *Built as (a).*
+- **Q-011** *What "Delete all data" deletes.* Not specified beyond "asks for confirmation".
+  *Code built:* every logged day and every item's last-tap time; what is tracked (shown, hidden
+  and added items) and the reminder settings stay. The confirmation says so. Luca: confirm, or
+  should it also reset the items and settings?
 
 ---
 
@@ -172,10 +185,12 @@ any that are already in to Built.
   the app's storage, included in Auto Backup, holding the raw values as in Spec: Data. Luca's
   only requirement: the app must be able to read it back for the analysis. *Decided by Luca
   2026-11-24 (was Q-001).*
-- **D-023** *A log day starts at 04:00*, like AnkiDroid. Until then, Today shows (and saves to) the
-  previous day, so a log made just after midnight goes to the evening it belongs to. *Decided by
-  Luca 2026-11-24 (was Q-006).* **Design side:** add this to Spec: Data and Today.
+- **D-023** *A log day starts at ~~04:00~~ 02:00*, like AnkiDroid. Until then, Today shows (and saves to)
+  the previous day, so a log made just after midnight goes to the evening it belongs to. *Decided
+  by Luca 2026-11-24 (was Q-006).* **Design side:** add this to Spec: Data and Today.
   *Spec updated 2026-11-24, design chat:* Today says which day it shows, Data has the log day.
+  *Changed 2026-11-24, Luca:* the cut-off is 02:00 (was 04:00). **Design side:** change 04:00 to
+  02:00 in Spec: Today and Data.
 - **D-024** *Brushing counts up to 2.* The Mouth care item is now "Brushed" with a corner badge
   like Tea: 0 → 1 → 2 → 0, minimum width 78 dp. It replaces the yes/no "Brushed 2×" in D-007.
   *Asked by Luca 2026-11-24.* **Design side:** update Spec: Chips and Items, and
@@ -217,31 +232,58 @@ any that are already in to Built.
 
 ---
 
-*Code, 2026-11-24, build 4+2026-11-24.1506 (Revision 7):* everything decided for Today is built
-and installed on Luca's phone. It was checked on an emulator at 384 × 832 dp, with screenshots
-compared against `design/Main.dc.html` and `design/Launch.dc.html`. The items stay here until Luca
+*Code, 2026-11-24, Revision 8:* the rest of v1 is built and installed on Luca's phone: History,
+Month, the past day, Settings and both reminders. Checked on an emulator at 384 × 832 dp with a
+made-up log from January (screenshots compared against each design file), and on Luca's phone
+without tapping (Today, past day, Month, History all fit). The items stay here until Luca
 confirms them on the phone.
-- D-027: most recent. `Data.kt` `byMostRecent`; `Item.lastTapped` (epoch ms, saved with the
-  items); `Store.tapItem`; the order is kept in `Today.kt` `DayScreen` and worked out again on a tab
-  switch, on coming back to the app, on switching into the mode and when the log day changes.
-  Checked: a tapped chip stays in place, and the new order shows after History and back.
-  Switching out of the mode keeps the order, so the list that is fading out doesn't reshuffle
-  (Luca saw it jump); the order is worked out again only on switching back in.
-- D-028: the tighter Today (12 dp chip padding, 6 dp between lines, 5 dp under group names, 8 dp
-  between groups, 72 dp aphtha card with 12 × 14 dp padding, 72 dp badge chips). The top padding is
-  the real status-bar inset, which is 40 dp on Luca's phone, as drawn. The past day banner comes
-  with the past day screen. `Today.kt`, `MainActivity.kt`.
-- D-017: icon tint `#1A1F29` (background and the gap around the dot). `res/drawable/`.
-- D-029: launch screen. *How it differs:* it uses the platform's own Android 12+ attributes in
-  `res/values-v31/themes.xml` instead of the AndroidX `Theme.SplashScreen` in `APP_ICON.md`, so no
-  extra library is needed. It looks the same (black, ring and dot on a round `#1A1F29`
-  background). Phones older than Android 12 show a plain black screen.
-- D-026: the indicator's touch area is Compose's 48 dp minimum touch target around the capsule,
-  so it is more than 44 dp tall although the capsule is drawn 24 dp tall.
-- Built earlier, also waiting for Luca's check: D-001 to D-008 (Today and tab bar), D-016 (motion
-  on Today), D-018 (data model; a saved day holds a value for every item shown that day, 0 when not
-  ticked, so a missing key means hidden or not yet existing; `testable` set only for Raw
-  apple/carrot), D-022 to D-025. History and Settings still show only their title row.
+- D-009: episodes. `Data.kt` `episodes` (aphtha days at most 2 days apart join; unlogged days count
+  as aphtha-free), with tests.
+- D-010: History. `History.kt` `YearScreen`; numbers from `currentStreak`, `medianGap`, `monthStrip`.
+  *How it differs or adds:* the strip's `hairline` shows the days actually logged, so unlogged days
+  leave gaps, rather than the part of the month gone by. "Episodes this year" counts episodes that
+  start this year. Before any aphtha, the first and third numbers show "–". Labels turn singular
+  for 1 ("1 day aphtha‑free", "1 episode this year"). "Days into this episode" counts today, and an
+  episode counts as on when today is an aphtha day, or yesterday was and today isn't logged yet.
+  Future months can't be opened.
+- D-011: Month. `History.kt` `MonthScreen` (a pager: swipe from 24 months back, or the first
+  logged month if earlier, up to this month). *Adds:* "episodes this month" counts episodes with
+  any day in the month; tapping today opens the Today tab; labels turn singular for 1.
+- D-012: past day. `Today.kt` `DayScreen` with `onBack`; system Back goes past day → month →
+  year; tapping the History tab again goes back to the year. Filling in a day that wasn't logged
+  stamps it with the current time zone (D-025).
+- D-013: Settings. `Settings.kt`. The CSV has columns `date`, `aphtha`, `zone`, then one per item
+  key (hidden and added items too), empty where an item wasn't on Today that day. Added items get
+  keys `my_<name>` (`Data.kt` `newItem`), are yes/no, and go at the end of their group.
+- D-014: reminders. `Reminders.kt`: exact alarms at the evening time and at 09:00, set again after
+  each one fires, after a reboot, an app update, or a clock or time-zone change. The nudge checks
+  the log day before (with D-023). Checked on the emulator: the evening notification came on the
+  minute, tapping it opens Today, and the nudge's tap opens yesterday as a past day.
+- D-017: the notification icon `res/drawable/ic_stat_aphthapp.xml`: ring and dot in white; the ring
+  is left open where the dot sits, since a one-colour icon can't paint the gap.
+- D-023: the cut-off is now 02:00 (`Data.kt` `DAY_START_HOUR`).
+- **Design side** (R-06), things built that the design files don't draw:
+  - "+ Add your own" opens a dialog in the app's style: a name field, the five groups as small
+    chips (Food picked first), and Cancel / Add (Add greyed until a name is typed).
+  - "Delete all data" asks in the same dialog style: "Delete all data?", "Every logged day is
+    deleted, and can't be brought back. What you track and your reminders stay.", Cancel /
+    Delete (red).
+  - The evening time uses Android's own clock dialog, tinted with `info` on `card`.
+  - Android asks for notification permission once, at first launch (its own prompt).
+  - Year, month and past day cross-fade into each other (200 ms).
+  - The singular labels and "–" above.
+- Built in Revision 7, also waiting for Luca's check: D-001 to D-008, D-016, D-018, D-022 to D-029.
+  Notes on how they were built, kept from Revision 7:
+  - D-018: a saved day holds a value for every item shown that day, 0 when not ticked, so a
+    missing key means hidden or not yet existing; `testable` is set only for Raw apple/carrot.
+  - D-026: the indicator's touch area is Compose's 48 dp minimum touch target around the capsule.
+  - D-027: the order is worked out again on a tab switch, on coming back to the app, on switching
+    into the mode and when the log day changes; switching out of the mode keeps it, so the list
+    fading out doesn't reshuffle.
+  - D-028: the top padding is the real status-bar inset (40 dp on Luca's phone, as drawn). The
+    tab bar position: see Q-009.
+  - D-029: built with the platform's Android 12+ splash attributes (`res/values-v31/themes.xml`)
+    instead of the AndroidX `Theme.SplashScreen`; it looks the same.
 
 ## Built
 - *(none yet)*

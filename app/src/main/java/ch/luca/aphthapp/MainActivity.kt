@@ -1,7 +1,16 @@
 package ch.luca.aphthapp
 
 import android.graphics.Color.TRANSPARENT
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.unit.Dp
+import java.time.LocalDate
+import java.time.YearMonth
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -46,11 +55,33 @@ import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 
 class MainActivity : ComponentActivity() {
+    private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(SystemBarStyle.dark(TRANSPARENT), SystemBarStyle.dark(TRANSPARENT))
         super.onCreate(savedInstanceState)
         Store.load(applicationContext)
+        Reminders.schedule(applicationContext)
+        // Android shows its own prompt; after two refusals it stops asking.
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+        if (savedInstanceState == null) handle(intent)
         setContent { App() }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handle(intent)
+    }
+
+    /** Opens what a notification asks for: Today, or a past day. */
+    private fun handle(intent: Intent) {
+        val day = intent.getStringExtra(Reminders.EXTRA_DAY)
+        when {
+            day != null -> Nav.openDay(LocalDate.parse(day))
+            intent.hasExtra(Reminders.EXTRA_TODAY) -> Nav.select(Tab.TODAY)
+        }
     }
 
     override fun onResume() {
@@ -64,13 +95,39 @@ private enum class Tab(val label: String, val icon: ImageVector) {
     TODAY("Today", Icons.today), HISTORY("History", Icons.history), SETTINGS("Settings", Icons.settings)
 }
 
+/** Where the app is: the tab, and in History the month and the past day that are open, if any. */
+private object Nav {
+    var tab by mutableStateOf(Tab.TODAY)
+    var month by mutableStateOf<YearMonth?>(null)
+    var pastDay by mutableStateOf<LocalDate?>(null)
+
+    /** Selects a tab; selecting History again goes back to the year. */
+    fun select(t: Tab) {
+        if (t == tab && t == Tab.HISTORY) {
+            month = null
+            pastDay = null
+        }
+        tab = t
+    }
+
+    /** Opens `day` as a past day, with its month behind it. */
+    fun openDay(day: LocalDate) {
+        tab = Tab.HISTORY
+        month = YearMonth.from(day)
+        pastDay = day
+    }
+
+    fun back() {
+        if (pastDay != null) pastDay = null else month = null
+    }
+}
+
 private val TAB_WIDTH = 64.dp
 private val TAB_GAP = 4.dp
 
 @Composable
 private fun App() {
-    var tab by rememberSaveable { mutableStateOf(Tab.TODAY) }
-    // Moves Today to the next day at 04:00 even while the app stays open.
+    // Moves Today to the next log day at the cutoff (DAY_START_HOUR) even while the app stays open.
     LaunchedEffect(Unit) {
         while (true) {
             delay(60_000)
@@ -82,24 +139,51 @@ private fun App() {
     // The drawings leave 40 dp for the status bar; the real inset is used, with a floor for
     // the rare case of no status bar.
     val top = max(24.dp, statusBar)
-    // The tab bar is 64 dp tall and floats 22 dp above the navigation bar.
-    val bottomGap = navBar + 86.dp
+    // The tab bar is 64 dp tall and floats 22 dp above the bottom of the screen, as drawn, but
+    // always at least 8 dp clear of the navigation bar (the gesture area).
+    val tabBarBottom = max(22.dp, navBar + 8.dp)
+    val bottomGap = tabBarBottom + 64.dp
     Box(Modifier.fillMaxSize().background(C.bg)) {
-        Crossfade(tab, Modifier.fillMaxSize().padding(top = top), ease(200), label = "screen") { t ->
+        Crossfade(Nav.tab, Modifier.fillMaxSize().padding(top = top), ease(200), label = "screen") { t ->
             when (t) {
                 Tab.TODAY -> DayScreen(Store.today, bottomGap)
-                Tab.HISTORY -> Placeholder("History", Store.today.year.toString())
-                Tab.SETTINGS -> Placeholder("Settings", "")
+                Tab.HISTORY -> HistoryTab(bottomGap)
+                Tab.SETTINGS -> SettingsScreen(bottomGap)
             }
         }
-        TabBar(tab, { tab = it }, Modifier.align(Alignment.BottomCenter).padding(bottom = navBar + 22.dp))
+        TabBar(Nav.tab, Nav::select, Modifier.align(Alignment.BottomCenter).padding(bottom = tabBarBottom))
     }
+    BackHandler(enabled = Nav.tab == Tab.HISTORY && (Nav.month != null || Nav.pastDay != null)) { Nav.back() }
 }
 
-/** A screen that is not built yet: only its title row. */
+/** The History tab: the year, a month, or a past day, cross-fading between them. */
 @Composable
-private fun Placeholder(title: String, note: String) {
-    Column(Modifier.padding(horizontal = 14.dp)) { TitleRow(title, note) }
+private fun HistoryTab(bottomGap: Dp) {
+    val level = when {
+        Nav.pastDay != null -> 2
+        Nav.month != null -> 1
+        else -> 0
+    }
+    Crossfade(level, animationSpec = ease(200), label = "history") { l ->
+        when (l) {
+            // Each screen keeps the date it opened with, so it can fade out after Nav moves on.
+            2 -> {
+                val day = remember { Nav.pastDay!! }
+                DayScreen(day, bottomGap, onBack = { Nav.pastDay = null })
+            }
+            1 -> {
+                val month = remember { Nav.month!! }
+                MonthScreen(
+                    month,
+                    onBack = { Nav.month = null },
+                    onMonthChange = { Nav.month = it },
+                    onOpenDay = { Nav.pastDay = it },
+                    onToday = { Nav.select(Tab.TODAY) },
+                )
+            }
+            else -> YearScreen { Nav.month = it }
+        }
+    }
 }
 
 @Composable
