@@ -31,3 +31,7 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Claude Code (kept out of git; Syncthing carries them)
+CLAUDE.md
+.claude/
